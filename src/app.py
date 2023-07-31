@@ -8,17 +8,16 @@ from  werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
-  
+
 # creates Flask object
 app = Flask(__name__)
+
 # configuration
-# NEVER HARDCODE YOUR CONFIGURATION IN YOUR CODE
-# INSTEAD CREATE A .env FILE AND STORE IN IT
 app.config['SECRET_KEY'] = os.getenv('MYSQL_PASSWORD')
-# database name
 app.config['SQLALCHEMY_DATABASE_URI'] = 'http://localhost:3306'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-# creates SQLALCHEMY object
+
+# create SQLALCHEMY object
 db = SQLAlchemy(app)
   
 # Database ORMs
@@ -60,7 +59,7 @@ def token_required(f):
 # this route sends back list of users
 @app.route('/user', methods =['GET'])
 @token_required
-def get_all_users(current_user):
+def get_all_users():
     # querying the database
     # for all the entries in it
     users = User.query.all()
@@ -155,4 +154,3 @@ if __name__ == "__main__":
     # and also provides a debugger shell
     # if you hit an error while running the server
     app.run(debug = True)
-
