@@ -8,13 +8,22 @@ from  werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
+from dotenv import load_dotenv
+
+if (load_dotenv() != True):
+    exit('Failed to initialize environment')
 
 # creates Flask object
 app = Flask(__name__)
 
-# configuration
-app.config['SECRET_KEY'] = os.getenv('MYSQL_PASSWORD')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'http://localhost:3306'
+# api configuration
+app.config['SECRET_KEY'] = os.getenv('API_KEY')
+
+# db configuration
+db_name = os.getenv('MYSQL_DATABASE')
+db_user = os.getenv('MYSQL_USER')
+db_pass = os.getenv('MYSQL_PASSWORD')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{db_user}:{db_pass}@localhost:3306/{db_name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 # create SQLALCHEMY object
