@@ -10,8 +10,6 @@ from datetime import datetime, timedelta
 from functools import wraps
 from dotenv import load_dotenv
 
-debug = True
-
 if (load_dotenv() != True):
     exit('Failed to initialize environment')
 
@@ -25,11 +23,13 @@ app.config['SECRET_KEY'] = os.getenv('API_KEY')
 db_name = os.getenv('DB_NAME')
 db_user = os.getenv('DB_USER')
 db_pass = os.getenv('DB_PASS')
+db_host = os.getenv('DB_HOST')
 
-if (debug == True):
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///webinator.sqlite3'
+if (os.getenv('LOCAL_DEVELOPMENT') == 'true'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_name}.sqlite3'
 else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{db_user}:{db_pass}@localhost/{db_name}'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{db_user}:{db_pass}@{db_host}/{db_name}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 # create SQLALCHEMY object
@@ -51,8 +51,8 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = None
         # jwt is passed in the request header
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(' ')[1]
         # return 401 if token is not passed
         if not token:
             return jsonify({'message': 'Token is missing'}), 401
@@ -71,12 +71,12 @@ def token_required(f):
         return  f(current_user, *args, **kwargs)
   
     return decorated
-  
+
 # User Database Route
 # this route sends back list of users
 @app.route('/user', methods =['GET'])
 @token_required
-def get_all_users(request_user):
+def get_all_users(req):
     # querying the database
     # for all the entries in it
     users = User.query.all()
@@ -93,13 +93,13 @@ def get_all_users(request_user):
         })
   
     return jsonify({'users': output})
-  
+
 # route for logging user in
 @app.route('/login', methods =['POST'])
 def login():
     # creates dictionary of form data
     auth = request.get_json()
-  
+
     if not auth['email'] or not auth['password']:
         # returns 401 if any email or / and password is missing
         return make_response(
@@ -107,11 +107,11 @@ def login():
             401,
             {'WWW-Authenticate': 'Basic realm ="Login required"'}
         )
-  
+
     user = User.query\
         .filter_by(email = auth['email'])\
         .first()
-  
+
     if not user:
         # returns 401 if user does not exist
         return make_response(
@@ -119,21 +119,22 @@ def login():
             401,
             {'WWW-Authenticate': 'Basic realm ="User does not exist"'}
         )
-  
+
     if check_password_hash(user.password, auth['password']):
         # generates the JWT Token
-        token = jwt.encode({
+        obj = {
             'public_id': user.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
-        }, app.config['SECRET_KEY'])
-  
-        return make_response(jsonify({'token': token.decode('UTF-8')}), 201)
-    # returns 403 if password is wrong
-    return make_response(
-        'Could not verify',
-        403,
-        {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
-    )
+        }
+        token = jwt.encode(obj, app.config['SECRET_KEY'])
+        return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
+    else:
+        # returns 403 if password is wrong
+        return make_response(
+            'Could not verify',
+            403,
+            {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
+        )
 
 # signup route
 @app.route('/signup', methods =['POST'])
@@ -160,7 +161,7 @@ def signup():
         # insert user
         db.session.add(user)
         db.session.commit()
-  
+
         return make_response('Successfully registered.', 201)
     else:
         # returns 202 if user already exists
