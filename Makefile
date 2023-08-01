@@ -4,6 +4,10 @@ PROJECT_SOURCE := src
 run: deps
 	flask --app $(PROJECT_SOURCE)/app run
 
+.PHONY: db
+db: .env
+	sudo docker compose up -d db
+
 .PHONY: deps
 deps: __pyenv__
 	pip3 install -r requirements.txt
