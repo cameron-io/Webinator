@@ -3,4 +3,4 @@ WORKDIR /var/lib/webinator
 ADD requirements.txt .
 RUN pip3 install -r requirements.txt
 ADD . .
-CMD make run
+CMD python3 -m flask --app src/app run
