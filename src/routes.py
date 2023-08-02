@@ -24,7 +24,6 @@ def get_all_users(req):
             'name' : user.name,
             'email' : user.email
         })
-  
     return jsonify({'users': output})
 
 # route for logging user in
@@ -33,10 +32,9 @@ def login():
     auth = request.get_json()
 
     if not auth['email'] or not auth['password']:
+        headers = {'WWW-Authenticate': 'Basic realm ="Login required"'}
         return make_response(
-            'Could not verify',
-            401,
-            {'WWW-Authenticate': 'Basic realm ="Login required"'}
+            'Could not verify', 401, headers
         )
 
     user = User.query\
@@ -44,14 +42,12 @@ def login():
         .first()
 
     if not user:
+        headers = {'WWW-Authenticate': 'Basic realm ="User does not exist"'}
         return make_response(
-            'Could not verify',
-            401,
-            {'WWW-Authenticate': 'Basic realm ="User does not exist"'}
+            'Could not verify', 401, headers
         )
 
     if check_password_hash(user.password, auth['password']):
-        # generate the JWT Token
         obj = {
             'public_id': user.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
@@ -59,10 +55,9 @@ def login():
         token = jwt.encode(obj, app.config['SECRET_KEY'])
         return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
     else:
+        headers = {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
         return make_response(
-            'Could not verify',
-            403,
-            {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
+            'Could not verify', 403, headers
         )
 
 # signup route
