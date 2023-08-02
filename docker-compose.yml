@@ -1,22 +1,25 @@
-version: '3.1'
+version: '3.8'
 
 services:
-
   db:
-    image: mysql
-    ports: 
-      - "3306:3306"
-    volumes:
-      - ./data:/var/lib/mysql
+    container_name: pg
+    image: postgres:alpine
+    restart: always
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-    restart: always
-
-  adminer:
-    image: adminer
-    restart: always
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - 8080:8080
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_ADMIN_PASS}
+    ports:
+      - "5050:80"
