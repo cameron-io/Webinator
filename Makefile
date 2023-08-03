@@ -1,8 +1,14 @@
-PROJECT_SOURCE := src
+PROJECT := webinator
+BUILD_TAG := latest
+SOURCE := src
 
 .PHONY: run
 run: deps
-	flask --app $(PROJECT_SOURCE)/app run
+	flask --app $(SOURCE)/app run
+
+.PHONY: build
+build:
+	sudo docker build -t $(PROJECT):$(BUILD_TAG) .
 
 .PHONY: db
 db: .env
