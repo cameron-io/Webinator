@@ -11,9 +11,6 @@ from auth import token_required
 import jwt
 from datetime import datetime, timedelta
 
-# User Database Route
-# this route sends back list of users
-@app.route('/user', methods =['GET'])
 @token_required
 def get_all_users(req):
     users = User.query.all()
@@ -26,8 +23,6 @@ def get_all_users(req):
         })
     return jsonify({'users': output})
 
-# route for logging user in
-@app.route('/login', methods =['POST'])
 def login():
     auth = request.get_json()
 
@@ -60,8 +55,6 @@ def login():
             'Could not verify', 403, headers
         )
 
-# signup route
-@app.route('/signup', methods =['POST'])
 def signup():
     data = request.get_json()
 
