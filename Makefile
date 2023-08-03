@@ -1,18 +1,19 @@
 PROJECT := webinator
 BUILD_TAG := latest
 SOURCE := src
+NETWORK := devNET
 
-.PHONY: run
-run: deps
-	flask --app $(SOURCE)/app run
+.PHONY: dev
+dev: build deps env
+	sudo docker run -dp 5000:5000 $(PROJECT):$(BUILD_TAG) --name $(PROJECT) --network $(NETWORK)
 
 .PHONY: build
-build:
+build: $(SOURCE)
 	sudo docker build -t $(PROJECT):$(BUILD_TAG) .
 
-.PHONY: db
-db: .env
-	sudo docker compose up -d db
+.PHONY: env
+env: .env
+	sudo docker compose up -d
 
 .PHONY: deps
 deps: __pyenv__

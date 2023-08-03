@@ -1,27 +1,29 @@
-version: '3.8'
+version: '3.1'
 
 services:
   db:
     container_name: pg
     image: postgres:alpine
+    networks:
+      - ${DEV_NETWORK}
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: webinator
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
+        test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
         interval: 10s
         timeout: 5s
         retries: 5
     ports:
       - "${DB_PORT}:${DB_PORT}"
-    volumes:
-      - ./data:/var/lib/postgresql
 
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
+    networks:
+      - devNET
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
