@@ -1,7 +1,13 @@
+
+volumes:
+  db-data:
+  pgadmin-data:
+
 services:
   # TODO: add client front-end
 
   service:
+    container_name: webinator
     image: webinator:latest
     depends_on:
       - db
@@ -10,6 +16,7 @@ services:
      - 5000:5000
 
   db:
+    container_name: pg
     image: postgres:15
     restart: always
     environment:
@@ -17,7 +24,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - ./__var__/pg:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     healthcheck:
         test: ["CMD-SHELL", "pg_isready"]
         interval: 30s
@@ -32,6 +39,8 @@ services:
     depends_on:
       - db
     restart: always
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${DB_ADMIN_PASS}
