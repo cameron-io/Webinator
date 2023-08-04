@@ -1,23 +1,28 @@
-PROJECT := webinator
-BUILD_TAG := latest
+SHELL := /bin/bash
+PROJECT=webinator
+BUILD_TAG=latest
+
 SOURCE := src
-NETWORK := devNET
 
 .PHONY: dev
 dev: build deps env
-	sudo docker run -dp 5000:5000 $(PROJECT):$(BUILD_TAG) --name $(PROJECT) --network $(NETWORK)
+	sudo docker compose up -d
 
 .PHONY: build
-build: $(SOURCE)
+build: $(SOURCE) env
 	sudo docker build -t $(PROJECT):$(BUILD_TAG) .
 
 .PHONY: env
 env: .env
-	sudo docker compose up -d
+	source .env
 
 .PHONY: deps
 deps: __pyenv__
 	pip3 install -r requirements.txt
+
+.PHONY: down
+down:
+	sudo docker compose down
 
 .PHONY: set-deps
 set-deps:

@@ -1,29 +1,34 @@
-version: '3.1'
-
 services:
+  # TODO: add client front-end
+
+  service:
+    image: webinator:latest
+    depends_on:
+      - db
+    restart: always
+    ports:
+     - 5000:5000
+
   db:
-    container_name: pg
-    image: postgres:alpine
-    networks:
-      - ${DEV_NETWORK}
+    image: postgres:15
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: webinator
+      POSTGRES_DB: ${DB_NAME}
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-        interval: 10s
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 30s
         timeout: 5s
         retries: 5
     ports:
       - "${DB_PORT}:${DB_PORT}"
 
-  pgadmin:
+  admin:
     container_name: pgadmin
     image: dpage/pgadmin4
-    networks:
-      - devNET
+    depends_on:
+      - db
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
