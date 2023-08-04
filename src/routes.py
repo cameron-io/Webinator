@@ -2,7 +2,7 @@
 from flask import request, jsonify, make_response
 # Core application
 from model import Account
-from app import context, db
+from app import app, db
 # Schema
 from flask_expects_json import expects_json
 import schema
@@ -50,7 +50,7 @@ def login():
             'public_id': account.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }
-        token = jwt.encode(token_data, context.config['SECRET_KEY'])
+        token = jwt.encode(token_data, app.config['SECRET_KEY'])
         obj = {
             'token': token.decode('UTF-8')
         }

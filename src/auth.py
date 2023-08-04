@@ -2,7 +2,7 @@ from flask import request, jsonify
 from model import Account
 from functools import wraps
 import jwt
-from app import context
+from app import app
 
 # decorator for verifying the JWT
 def token_required(f):
@@ -18,7 +18,7 @@ def token_required(f):
   
         try:
             # decoding the payload to fetch the stored details
-            data = jwt.decode(token, context.config['SECRET_KEY'])
+            data = jwt.decode(token, app.config['SECRET_KEY'])
             account_data = Account.query\
                 .filter_by(public_id = data['public_id'])\
                 .first()
