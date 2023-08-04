@@ -1,5 +1,5 @@
 # flask imports
-from flask import request, jsonify, make_response, Blueprint
+from flask import request, jsonify, make_response
 # Core application
 from model import Account
 from app import context, db
