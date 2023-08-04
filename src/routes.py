@@ -2,7 +2,10 @@
 from flask import request, jsonify, make_response, Blueprint
 # Core application
 from model import Account
-from app import app, db
+from app import context, db
+# Schema
+from flask_expects_json import expects_json
+import schema
 # Auth-related imports
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,11 +21,12 @@ def get_all_accounts(req):
     for account in accounts:
         output.append({
             'public_id': account.public_id,
-            'name' : account.name,
+            'username' : account.username,
             'email' : account.email
         })
     return jsonify({'accounts': output})
 
+@expects_json(schema.login)
 def login():
     auth = request.get_json()
 
@@ -47,7 +51,7 @@ def login():
             'public_id': account.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }
-        token = jwt.encode(obj, app.config['SECRET_KEY'])
+        token = jwt.encode(obj, context.config['SECRET_KEY'])
         return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
     else:
         headers = {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
@@ -55,10 +59,11 @@ def login():
             'Could not verify', 403, headers
         )
 
+@expects_json(schema.sign_up)
 def signup():
     data = request.get_json()
 
-    name, email = data['name'], data['email']
+    username, email = data['username'], data['email']
     password = data['password']
   
     # checking for existing account
@@ -69,7 +74,7 @@ def signup():
         # database ORM object
         account = Account(
             public_id = str(uuid.uuid4()),
-            name = name,
+            username = username,
             email = email,
             password = generate_password_hash(password)
         )
