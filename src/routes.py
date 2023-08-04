@@ -14,6 +14,9 @@ from auth import token_required
 import jwt
 from datetime import datetime, timedelta
 
+DEFAULT_HEADERS = {'content-type': 'application/json'}
+
+
 @token_required
 def get_all_accounts(req):
     accounts = Account.query.all()
@@ -21,43 +24,43 @@ def get_all_accounts(req):
     for account in accounts:
         output.append({
             'public_id': account.public_id,
-            'username' : account.username,
-            'email' : account.email
+            'username': account.username,
+            'email': account.email
         })
-    return jsonify({'accounts': output})
+    obj = {
+        'accounts': output
+    }
+    return res(obj, 200)
+
 
 @expects_json(schema.login)
 def login():
     auth = request.get_json()
-
-    if not auth['email'] or not auth['password']:
-        headers = {'WWW-Authenticate': 'Basic realm ="Login required"'}
-        return make_response(
-            'Could not verify', 401, headers
-        )
-
     account = Account.query\
         .filter_by(email = auth['email'])\
         .first()
-
     if not account:
-        headers = {'WWW-Authenticate': 'Basic realm ="Account does not exist"'}
-        return make_response(
-            'Could not verify', 401, headers
-        )
+        obj = {
+            'error': 'Please sign up.'
+        }
+        return res(obj, 401, {'WWW-Authenticate': 'Basic realm ="Account does not exist"'})
 
     if check_password_hash(account.password, auth['password']):
-        obj = {
+        token_data = {
             'public_id': account.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }
-        token = jwt.encode(obj, context.config['SECRET_KEY'])
-        return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
+        token = jwt.encode(token_data, context.config['SECRET_KEY'])
+        obj = {
+            'token': token.decode('UTF-8')
+        }
+        return res(obj, 200)
     else:
-        headers = {'WWW-Authenticate': 'Basic realm ="Wrong Password"'}
-        return make_response(
-            'Could not verify', 403, headers
-        )
+        obj = {
+            'error': 'Could not verify'
+        }
+        return res(obj, 403, {'WWW-Authenticate': 'Basic realm ="Wrong Password"'})
+
 
 @expects_json(schema.sign_up)
 def signup():
@@ -82,6 +85,18 @@ def signup():
         db.session.add(account)
         db.session.commit()
 
-        return make_response('Successfully registered.', 201)
+        obj = {
+            'success': 'Successfully registered.'
+        }
+        return res(obj, 201)
     else:
-        return make_response('This email is already registered to an account. Please Log in.', 202)
+        obj = {
+            'error': 'This email is already registered to an account. Please Log in.'
+        }
+        return res(obj, 202)
+
+
+def res(obj, status_code, **kwargs):
+    custom_headers = kwargs.get('headers')
+    headers = custom_headers | DEFAULT_HEADERS if custom_headers != None else DEFAULT_HEADERS
+    return make_response(jsonify(obj), status_code, headers)
