@@ -7,7 +7,7 @@ db_host = os.getenv('DB_HOST')
 
 def db_init(app):
     db_uri = f'sqlite:///{db_name}.sqlite3'\
-                if os.getenv('SQLITE') == 'true'\
+                if os.getenv('FLASK_ENV') == 'true'\
         else f'postgresql://{db_user}:{db_pass}@{db_host}/{db_name}'
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri

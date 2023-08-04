@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from model import User
+from model import Account
 from functools import wraps
 import jwt
 from app import app
@@ -19,14 +19,14 @@ def token_required(f):
         try:
             # decoding the payload to fetch the stored details
             data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = User.query\
+            account_data = Account.query\
                 .filter_by(public_id = data['public_id'])\
                 .first()
         except:
             return jsonify({
                 'message' : 'Token is invalid'
             }), 401
-        # returns the current logged in users context to the routes
-        return  f(current_user, *args, **kwargs)
+        # returns the current logged in account's context to the routes
+        return  f(account_data, *args, **kwargs)
   
     return decorated

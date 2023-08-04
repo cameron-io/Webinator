@@ -1,7 +1,7 @@
 # flask imports
 from flask import request, jsonify, make_response, Blueprint
 # Core application
-from model import User
+from model import Account
 from app import app, db
 # Auth-related imports
 import uuid
@@ -12,16 +12,16 @@ import jwt
 from datetime import datetime, timedelta
 
 @token_required
-def get_all_users(req):
-    users = User.query.all()
+def get_all_accounts(req):
+    accounts = Account.query.all()
     output = []
-    for user in users:
+    for account in accounts:
         output.append({
-            'public_id': user.public_id,
-            'name' : user.name,
-            'email' : user.email
+            'public_id': account.public_id,
+            'name' : account.name,
+            'email' : account.email
         })
-    return jsonify({'users': output})
+    return jsonify({'accounts': output})
 
 def login():
     auth = request.get_json()
@@ -32,19 +32,19 @@ def login():
             'Could not verify', 401, headers
         )
 
-    user = User.query\
+    account = Account.query\
         .filter_by(email = auth['email'])\
         .first()
 
-    if not user:
-        headers = {'WWW-Authenticate': 'Basic realm ="User does not exist"'}
+    if not account:
+        headers = {'WWW-Authenticate': 'Basic realm ="Account does not exist"'}
         return make_response(
             'Could not verify', 401, headers
         )
 
-    if check_password_hash(user.password, auth['password']):
+    if check_password_hash(account.password, auth['password']):
         obj = {
-            'public_id': user.public_id,
+            'public_id': account.public_id,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }
         token = jwt.encode(obj, app.config['SECRET_KEY'])
@@ -61,20 +61,20 @@ def signup():
     name, email = data['name'], data['email']
     password = data['password']
   
-    # checking for existing user
-    user = User.query\
+    # checking for existing account
+    account = Account.query\
         .filter_by(email = email)\
         .first()
-    if not user:
+    if not account:
         # database ORM object
-        user = User(
+        account = Account(
             public_id = str(uuid.uuid4()),
             name = name,
             email = email,
             password = generate_password_hash(password)
         )
-        # insert user
-        db.session.add(user)
+        # insert account
+        db.session.add(account)
         db.session.commit()
 
         return make_response('Successfully registered.', 201)
