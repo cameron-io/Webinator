@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request
 from model import Account
 from functools import wraps
 import jwt
@@ -14,7 +14,7 @@ def token_required(f):
             token = request.headers['Authorization'].split(' ')[1]
         # return 401 if token is not passed
         if not token:
-            return jsonify({'message': 'Token is missing'}), 401
+            return ({'message': 'Token is missing'}, 401)
   
         try:
             # decoding the payload to fetch the stored details
@@ -23,9 +23,7 @@ def token_required(f):
                 .filter_by(public_id = data['public_id'])\
                 .first()
         except:
-            return jsonify({
-                'message' : 'Token is invalid'
-            }), 401
+            return ('', 401)
         # returns the current logged in account's context to the routes
         return  f(account_data, *args, **kwargs)
   

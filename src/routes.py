@@ -1,5 +1,5 @@
 # flask imports
-from flask import request, jsonify, make_response
+from flask import request
 # Core application
 from model import Account
 from app import app, db
@@ -14,9 +14,6 @@ from auth import token_required
 import jwt
 from datetime import datetime, timedelta
 
-DEFAULT_HEADERS = {'content-type': 'application/json'}
-
-
 @token_required
 def get_all_accounts(req):
     accounts = Account.query.all()
@@ -27,10 +24,10 @@ def get_all_accounts(req):
             'username': account.username,
             'email': account.email
         })
-    obj = {
+    res = {
         'accounts': output
     }
-    return res(obj, 200)
+    return (res, 200)
 
 
 @expects_json(schema.login)
@@ -40,10 +37,10 @@ def login():
         .filter_by(email = auth['email'])\
         .first()
     if not account:
-        obj = {
+        res = {
             'error': 'Please sign up.'
         }
-        return res(obj, 401, {'WWW-Authenticate': 'Basic realm ="Account does not exist"'})
+        return (res, 401, {'WWW-Authenticate': 'Basic realm ="Account does not exist"'})
 
     if check_password_hash(account.password, auth['password']):
         token_data = {
@@ -51,15 +48,15 @@ def login():
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }
         token = jwt.encode(token_data, app.config['SECRET_KEY'])
-        obj = {
+        res = {
             'token': token.decode('UTF-8')
         }
-        return res(obj, 200)
+        return (res, 200)
     else:
-        obj = {
+        res = {
             'error': 'Could not verify'
         }
-        return res(obj, 403, {'WWW-Authenticate': 'Basic realm ="Wrong Password"'})
+        return (res, 403, {'WWW-Authenticate': 'Basic realm ="Wrong Password"'})
 
 
 @expects_json(schema.sign_up)
@@ -85,18 +82,12 @@ def signup():
         db.session.add(account)
         db.session.commit()
 
-        obj = {
+        res = {
             'success': 'Successfully registered.'
         }
-        return res(obj, 201)
+        return (res, 201)
     else:
-        obj = {
+        res = {
             'error': 'This email is already registered to an account. Please Log in.'
         }
-        return res(obj, 202)
-
-
-def res(obj, status_code, **kwargs):
-    custom_headers = kwargs.get('headers')
-    headers = custom_headers | DEFAULT_HEADERS if custom_headers != None else DEFAULT_HEADERS
-    return make_response(jsonify(obj), status_code, headers)
+        return (res, 202)
