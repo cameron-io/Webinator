@@ -28,10 +28,8 @@ with app.app_context():
     db.create_all()
 
 # define routes
-from routes import signup, login, get_all_accounts
-app.add_url_rule('/accounts', methods=['GET'], view_func=get_all_accounts)
-app.add_url_rule('/login', methods=['POST'], view_func=login)
-app.add_url_rule('/signup', methods=['POST'], view_func=signup)
+from routes import add_url_rules
+add_url_rules(app)
 
 # api configuration
 app.config['SECRET_KEY'] = get_env('API_KEY')
