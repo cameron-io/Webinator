@@ -4,6 +4,11 @@
 
 ### Efficiency is Key.
 
-To get started, simply:
+#### To get started, simply:
 - update the `.env` file with DB & API config
 - `make dev`
+
+#### Requirements:
+- Python3 VirtualEnv
+- Docker Engine
+- Docker Compose Plugin
