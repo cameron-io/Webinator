@@ -26,3 +26,7 @@ set-deps:
 
 __pyenv__:
 	python3 -m venv __pyenv__
+
+.PHONY: admin
+admin:
+	sudo docker compose up -d admin
