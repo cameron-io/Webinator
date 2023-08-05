@@ -70,6 +70,7 @@ def signup():
     account = Account.query\
         .filter_by(email = email)\
         .first()
+    
     if not account:
         # database ORM object
         account = Account(
