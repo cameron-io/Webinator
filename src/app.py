@@ -1,4 +1,4 @@
-import os
+from utils import get_env
 # flask imports
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -13,11 +13,11 @@ app.app_context().push()
 
 # db configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = '{}://{}:{}@{}/{}'.format(\
-    os.getenv('DB_ENGINE'),\
-    os.getenv('DB_USER'),\
-    os.getenv('DB_PASS'),\
-    os.getenv('DB_HOST'),\
-    os.getenv('DB_NAME')\
+    get_env('DB_ENGINE'),\
+    get_env('DB_USER'),\
+    get_env('DB_PASS'),\
+    get_env('DB_HOST'),\
+    get_env('DB_NAME')\
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
@@ -34,7 +34,7 @@ app.add_url_rule('/login', methods=['POST'], view_func=login)
 app.add_url_rule('/signup', methods=['POST'], view_func=signup)
 
 # api configuration
-app.config['SECRET_KEY'] = os.getenv('API_KEY')
+app.config['SECRET_KEY'] = get_env('API_KEY')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
