@@ -4,9 +4,8 @@ volumes:
   pgadmin-data:
 
 services:
-  # TODO: add client front-end
 
-  service:
+  server:
     container_name: webinator
     image: webinator:latest
     depends_on:

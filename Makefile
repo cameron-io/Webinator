@@ -1,20 +1,16 @@
 SHELL := /bin/bash
-PROJECT=webinator
-BUILD_TAG=latest
 
-SOURCE := src
+SERVER_NAME := webinator
+SERVER_APP := src/app.py
+BUILD_TAG := latest
 
 .PHONY: dev
-dev: build deps env
-	sudo docker compose up -d
+dev: build deps
+	sudo docker compose up -d server
 
 .PHONY: build
-build: $(SOURCE) env
-	sudo docker build -t $(PROJECT):$(BUILD_TAG) .
-
-.PHONY: env
-env: .env
-	source .env
+build: $(SERVER_SOURCE)
+	sudo docker build -t $(SERVER_NAME):$(BUILD_TAG) .
 
 .PHONY: deps
 deps: __pyenv__
