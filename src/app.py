@@ -23,7 +23,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 # create SQLALCHEMY object
 db = SQLAlchemy(app)
-db.create_all()
+
+with app.app_context():
+    db.create_all()
 
 # define routes
 from routes import signup, login, get_all_accounts
@@ -35,7 +37,4 @@ app.add_url_rule('/signup', methods=['POST'], view_func=signup)
 app.config['SECRET_KEY'] = os.getenv('API_KEY')
 
 if __name__ == "__main__":
-    # setting debug to True enables hot reload
-    # and also provides a debugger shell
-    # if you hit an error while running the server
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
