@@ -8,23 +8,25 @@ from app import app
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
-        # jwt is passed in the request header
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(' ')[1]
-        # return 401 if token is not passed
-        if not token:
-            return ({'message': 'Token is missing'}, 401)
-  
+        token = get_token()
+        if token == None:
+            return ('', 401)
         try:
-            # decoding the payload to fetch the stored details
             data = jwt.decode(token, app.config['SECRET_KEY'])
             account_data = Account.query\
                 .filter_by(public_id = data['public_id'])\
                 .first()
         except:
-            return ('', 401)
+            return ('', 403)
         # returns the current logged in account's context to the routes
         return  f(account_data, *args, **kwargs)
-  
+
     return decorated
+
+def get_token():
+    token = None
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization'].split(' ')
+        if len(auth_header) == 2 and auth_header[0] == 'Bearer':
+            token = auth_header[1]
+    return token
