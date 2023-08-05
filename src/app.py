@@ -28,7 +28,7 @@ with app.app_context():
     db.create_all()
 
 # define routes
-from routes import add_url_rules
+from url import add_url_rules
 add_url_rules(app)
 
 # api configuration
