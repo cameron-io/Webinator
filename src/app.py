@@ -12,13 +12,7 @@ app = Flask(__name__)
 app.app_context().push()
 
 # db configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = '{}://{}:{}@{}/{}'.format(\
-    get_env('DB_ENGINE'),\
-    get_env('DB_USER'),\
-    get_env('DB_PASS'),\
-    get_env('DB_HOST'),\
-    get_env('DB_NAME')\
-)
+app.config['SQLALCHEMY_DATABASE_URI'] = get_env('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 # create SQLALCHEMY object
