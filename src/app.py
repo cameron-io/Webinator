@@ -1,32 +1,30 @@
-from utils import get_env
 # flask imports
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 # load environment variables
 from dotenv import load_dotenv
-if (load_dotenv() != True): exit('Failed to initialize environment')
+import utils
+
+if (load_dotenv() != True):
+    exit('Failed to initialize environment')
 
 # creates Flask object
 app = Flask(__name__)
 app.app_context().push()
 
-# db configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = get_env('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = utils.get_env('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SECRET_KEY'] = utils.get_env('API_KEY')
 
 # create SQLALCHEMY object
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
+# endpoints
+import api
 
-# define routes
-from url import add_url_rules
-add_url_rules(app)
-
-# api configuration
-app.config['SECRET_KEY'] = get_env('API_KEY')
+# allow flask to manage scripts
+import scripts
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')

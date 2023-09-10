@@ -14,6 +14,8 @@ from auth import token_required
 import jwt
 from datetime import datetime, timedelta
 
+
+@app.route('/accounts', methods = ['GET'])
 @token_required
 def get_all_accounts(req):
     accounts = Account.query.all()
@@ -30,6 +32,7 @@ def get_all_accounts(req):
     return (res, 200)
 
 
+@app.route('/login', methods = ['POST'])
 @expects_json(schema.login)
 def login():
     auth = request.get_json()
@@ -59,6 +62,7 @@ def login():
         return (res, 403, {'WWW-Authenticate': 'Basic realm ="Wrong Password"'})
 
 
+@app.route('/signup', methods = ['POST'])
 @expects_json(schema.sign_up)
 def signup():
     data = request.get_json()
