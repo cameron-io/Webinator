@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 
 @app.route('/accounts', methods = ['GET'])
 @token_required
-def get_all_accounts(req):
+def get_all_accounts(_) -> (dict, int):
     accounts = Account.query.all()
     output = []
     for account in accounts:
@@ -34,7 +34,7 @@ def get_all_accounts(req):
 
 @app.route('/login', methods = ['POST'])
 @expects_json(schema.login)
-def login():
+def login() -> (dict, int):
     auth = request.get_json()
     account = Account.query\
         .filter_by(email = auth['email'])\
@@ -64,7 +64,7 @@ def login():
 
 @app.route('/signup', methods = ['POST'])
 @expects_json(schema.sign_up)
-def signup():
+def signup() -> (dict, int):
     data = request.get_json()
 
     username, email = data['username'], data['email']
