@@ -1,11 +1,12 @@
 SHELL := /bin/bash
 
 SERVER_NAME := webinator
-SERVER_APP := src/app.py
+SERVER_SOURCE = src
+SERVER_APP := $(SERVER_SOURCE)/app.py
 BUILD_TAG := latest
 
 .PHONY: dev
-dev: build deps
+dev: build
 	sudo docker compose up -d server
 
 .PHONY: build
@@ -20,8 +21,8 @@ deps: __pyenv__
 down:
 	sudo docker compose down
 
-.PHONY: set-deps
-set-deps:
+.PHONY: lock-deps
+lock-deps:
 	pip3 freeze > requirements.txt
 
 __pyenv__:
