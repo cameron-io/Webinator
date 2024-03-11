@@ -1,5 +1,5 @@
 
-sign_up = {
+register = {
   "type": "object",
   "properties": {
     "username": { "type": "string" },

@@ -4,34 +4,25 @@ from flask import request
 from app import app
 # Schema
 from flask_expects_json import expects_json
-import schema
+import validate.user as user
 # Auth-related imports
 from werkzeug.security import check_password_hash
-from auth import token_required
+from middleware.auth import token_required
 # imports for PyJWT authentication
 import jwt
 from datetime import datetime, timedelta
 # DB layer
-from db import get_user_by_email, query_all_accounts, create_user_account
-
-@app.route('/accounts', methods = ['GET'])
-@token_required
-def get_all_accounts(_):
-    accounts = query_all_accounts()
-    res = {
-        'accounts': accounts
-    }
-    return (res, 200)
+from service.user import get_user_by_email, create_user_account
 
 
 @app.route('/login', methods = ['POST'])
-@expects_json(schema.login)
+@expects_json(user.login)
 def login():
     payload = request.get_json()
     account = get_user_by_email(payload['email'])
     if not account:
         res = {
-            'error': 'Please sign up.'
+            'error': 'Account not registered.'
         }
         return (res, 401, {'WWW-Authenticate': 'Basic realm ="Account does not exist"'})
 
@@ -44,7 +35,7 @@ def login():
         res = {
             'token': token.decode('UTF-8')
         }
-        return (res, 200)
+        return ('', 200, {'set-cookie': f'token={token}; Path=/; HttpOnly; SameSite=strict;'})
     else:
         res = {
             'error': 'Could not verify'
@@ -52,8 +43,8 @@ def login():
         return (res, 403, {'WWW-Authenticate': 'Basic realm ="Wrong Password"'})
 
 
-@app.route('/signup', methods = ['POST'])
-@expects_json(schema.sign_up)
+@app.route('/register', methods = ['POST'])
+@expects_json(user.register)
 def signup():
     data = request.get_json()
   
@@ -73,4 +64,4 @@ def signup():
         res = {
             'error': 'This email is already registered to an account. Please Log in.'
         }
-        return (res, 202)
+        return (res, 400)
