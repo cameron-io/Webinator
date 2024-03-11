@@ -33,7 +33,7 @@ def login():
         }
         token = jwt.encode(token_data, app.config['SECRET_KEY'])
         res = {
-            'token': token.decode('UTF-8')
+            'token': token
         }
         return ('', 200, {'set-cookie': f'token={token}; Path=/; HttpOnly; SameSite=strict;'})
     else:
