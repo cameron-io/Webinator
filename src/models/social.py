@@ -3,7 +3,7 @@ from app import db
 
 class Social(db.Model):
     id = Column(Integer, primary_key = True)
-    profile_id = Column(ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
     youtube = Column(String(255))
     twitter = Column(String(255))
     facebook = Column(String(255))

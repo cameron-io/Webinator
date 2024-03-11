@@ -20,7 +20,13 @@ app.config['SECRET_KEY'] = utils.get_env('API_KEY')
 
 # create SQLALCHEMY object
 db = SQLAlchemy(app)
-import models
+# get tables
+import models.education
+import models.experience
+import models.social
+import models.profile
+import models.post
+import models.account
 
 # endpoints
 import controllers.account as account

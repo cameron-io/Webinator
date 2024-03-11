@@ -5,7 +5,7 @@ class Education(db.Model):
     __tablename__ = 'education'
 
     id = Column(Integer, primary_key = True)
-    profile_id = Column(ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
     school = Column(String(255), nullable=False)
     degree = Column(String(255), nullable=False)
     field_of_study = Column(String(255), nullable=False)

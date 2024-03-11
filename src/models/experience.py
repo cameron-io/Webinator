@@ -5,7 +5,7 @@ class Experience(db.Model):
     __tablename__ = 'experience'
 
     id = Column(Integer, primary_key = True)
-    profile_id = Column(ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False)
     title = Column(String(255), nullable=False)
     company = Column(String(255), nullable=False)
     location = Column(String(255))
